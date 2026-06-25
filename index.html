@@ -1,142 +1,27 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
-
 <head>
-
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Apostando...</title>
+<title>Prueba Google Sheets</title>
 
 <style>
 
-*{
-    box-sizing:border-box;
-}
-
 body{
-
-    font-family:Arial, Helvetica, sans-serif;
-    background:#f2f2f2;
-    margin:0;
-    padding:20px;
-
-}
-
-.contenedor{
-
-    max-width:900px;
-    margin:auto;
-
-}
-
-.encabezado{
-
-    background:#5d8c31;
-    color:white;
-    border-radius:10px 10px 0 0;
-    padding:20px;
-
-}
-
-.encabezado h1{
-
-    margin:0;
+    font-family:Arial;
     text-align:center;
-    font-size:32px;
-
+    background:#f0f0f0;
+    margin-top:80px;
 }
 
-.infoPartido{
-
-    display:flex;
-    justify-content:space-between;
-    margin-top:10px;
-    font-size:15px;
-
+h1{
+    color:#2d6a2d;
 }
 
-.marcador{
-
-    font-size:56px;
-    text-align:center;
+#equipo{
+    font-size:40px;
+    color:#004080;
     font-weight:bold;
-    margin-top:15px;
-
-}
-
-.panelMarcador{
-
-    text-align:center;
-    margin-top:15px;
-
-}
-
-.panelMarcador button{
-
-    padding:8px 14px;
-    font-size:16px;
-    cursor:pointer;
-
-}
-
-.resumen{
-
-    display:flex;
-    justify-content:space-around;
-    background:white;
-    padding:15px;
-    font-size:18px;
-    font-weight:bold;
-
-}
-
-table{
-
-    width:100%;
-    border-collapse:collapse;
-    background:white;
-
-}
-
-th{
-
-    background:#72a93f;
-    color:white;
-    padding:12px;
-
-}
-
-td{
-
-    padding:10px;
-    border-bottom:1px solid #ddd;
-    text-align:center;
-
-}
-
-tr:hover{
-
-    background:#f7f7f7;
-
-}
-
-.ganador{
-
-    background:#d9ffd7 !important;
-    font-weight:bold;
-
-}
-
-.total{
-
-    background:white;
-    padding:15px;
-    text-align:right;
-    font-size:20px;
-    font-weight:bold;
-    border-radius:0 0 10px 10px;
-
+    margin-top:30px;
 }
 
 </style>
@@ -145,350 +30,45 @@ tr:hover{
 
 <body>
 
-<div class="contenedor">
+<h1>Equipo Local</h1>
 
-<div class="encabezado">
-
-<h1 id="tituloPartido">
-
+<div id="equipo">
 Cargando...
-
-</h1>
-
-<div class="infoPartido">
-
-<div>
-
-📅
-<span id="fecha"></span>
-
-</div>
-
-<div>
-
-🕒
-<span id="hora"></span>
-
-</div>
-
-<div>
-
-<span id="estado"></span>
-
-</div>
-
-</div>
-
-<div class="marcador">
-
-<span id="golesLocal">
-
-0
-
-</span>
-
--
-
-<span id="golesVisitante">
-
-0
-
-</span>
-
-</div>
-
-<div class="panelMarcador">
-
-<button onclick="cambiarLocal(-1)">-</button>
-
-<button onclick="cambiarLocal(1)">+</button>
-
-&nbsp;&nbsp;&nbsp;
-
-<button onclick="cambiarVisitante(-1)">-</button>
-
-<button onclick="cambiarVisitante(1)">+</button>
-
-</div>
-
-</div>
-
-<div class="resumen">
-
-<div>
-
-👥 Participantes
-
-<br>
-
-<span id="participantes">
-
-0
-
-</span>
-
-</div>
-
-<div>
-
-🏆 Ganadores
-
-<br>
-
-<span id="cantidadGanadores">
-
-0
-
-</span>
-
-</div>
-
-</div>
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>#</th>
-
-<th>Apostador</th>
-
-<th>Monto</th>
-
-<th>Local</th>
-
-<th>Visitante</th>
-
-</tr>
-
-</thead>
-
-<tbody id="tablaApuestas">
-
-</tbody>
-
-</table>
-
-<div class="total">
-
-Total apostado:
-
-Bs
-
-<span id="totalApostado">
-
-0.00
-
-</span>
-
-</div>
-
 </div>
 
 <script>
-//==============================================
-// GOOGLE SHEETS
-//==============================================
 
-const URL_CSV =
+const URL =
 "https://docs.google.com/spreadsheets/d/e/2PACX-1vStBZRZ3-ipmotg7jpeuZFDBF25McNMdQh_mz2ZUuj7rMBfVp0F9WbuCRPl7U69Hg/pub?output=csv&gid=1049860530&single=true";
 
-let apuestas=[];
+fetch(URL)
+.then(r=>{
 
-let marcadorLocal=0;
-let marcadorVisitante=0;
+    console.log("Estado:",r.status);
 
+    return r.text();
 
-//==============================================
-// CARGAR DATOS
-//==============================================
+})
+.then(texto=>{
 
-async function cargarDatos(){
+    console.log(texto);
 
-    try{
+    let filas = texto.split(/\r?\n/);
 
-        const respuesta = await fetch(URL_CSV);
+    let primera = filas[0].split(",");
 
-        const texto = await respuesta.text();
+    document.getElementById("equipo").innerHTML=primera[1];
 
-        const filas = texto
-    .split(/\r?\n/)
-    .map(fila => fila.split(","));
+})
+.catch(error=>{
 
-        procesarDatos(filas);
+    console.log(error);
 
-    }
+    document.getElementById("equipo").innerHTML="ERROR";
 
-    catch(error){
-
-        alert("No fue posible leer Google Sheets");
-
-        console.log(error);
-
-    }
-
-}
-
-//==============================================
-// PROCESAR DATOS
-//==============================================
-
-function procesarDatos(filas){
-
-    tituloPartido.textContent =
-        filas[0][1] + " vs " + filas[1][1];
-
-    fecha.textContent = filas[4][1].trim();
-
-    hora.textContent = filas[5][1].trim();
-
-    estado.textContent = filas[6][1].trim();
-
-    apuestas=[];
-
-    let total=0;
-
-    // Buscar automáticamente dónde empieza la tabla
-    let inicio = filas.findIndex(f => f[0] === "NOMBRE");
-
-    if(inicio === -1){
-        alert("No encontré la tabla.");
-        return;
-    }
-
-    for(let i=inicio+1;i<filas.length;i++){
-
-        if(!filas[i][0]) continue;
-
-        apuestas.push({
-
-            nombre:filas[i][0],
-
-            monto:Number(filas[i][1]),
-
-            local:Number(filas[i][2]),
-
-            visitante:Number(filas[i][3])
-
-        });
-
-        total += Number(filas[i][1]);
-
-    }
-
-    participantes.textContent = apuestas.length;
-
-    totalApostado.textContent = total.toFixed(2);
-
-    mostrarTabla();
-
-}
-    //==============================================
-// MOSTRAR TABLA
-//==============================================
-
-function mostrarTabla(){
-
-    tablaApuestas.innerHTML="";
-
-    let cantidadGanadoresActual=0;
-
-    apuestas.forEach((item,index)=>{
-
-        let ganador=false;
-
-        if(
-            item.local===marcadorLocal &&
-            item.visitante===marcadorVisitante
-        ){
-            ganador=true;
-            cantidadGanadoresActual++;
-        }
-
-        let fila=document.createElement("tr");
-
-        if(ganador)
-            fila.className="ganador";
-
-        fila.innerHTML=`
-
-            <td>${index+1}</td>
-
-            <td>
-
-                ${ganador ? "🏆 " : ""}
-
-                <b>${item.nombre}</b>
-
-            </td>
-
-            <td>
-
-                Bs ${item.monto.toFixed(2)}
-
-            </td>
-
-            <td>
-
-                ${item.local}
-
-            </td>
-
-            <td>
-
-                ${item.visitante}
-
-            </td>
-
-        `;
-
-        tablaApuestas.appendChild(fila);
-
-    });
-
-    cantidadGanadores.textContent=cantidadGanadoresActual;
-
-}
-//==============================================
-// MARCADOR
-//==============================================
-
-function actualizarMarcador(){
-
-    golesLocal.textContent=marcadorLocal;
-
-    golesVisitante.textContent=marcadorVisitante;
-
-    mostrarTabla();
-
-}
-
-function cambiarLocal(valor){
-
-    marcadorLocal+=valor;
-
-    if(marcadorLocal<0)
-        marcadorLocal=0;
-
-    actualizarMarcador();
-
-}
-
-function cambiarVisitante(valor){
-
-    marcadorVisitante+=valor;
-
-    if(marcadorVisitante<0)
-        marcadorVisitante=0;
-
-    actualizarMarcador();
-
-}
+});
 
 </script>
 
 </body>
-
 </html>
