@@ -314,9 +314,8 @@ async function cargarDatos(){
         const texto = await respuesta.text();
 
         const filas = texto
-            .trim()
-            .split(/\r?\n/)
-            .map(fila=>fila.split(","));
+    .split(/\r?\n/)
+    .map(fila => fila.split(","));
 
         procesarDatos(filas);
 
@@ -338,57 +337,55 @@ async function cargarDatos(){
 
 function procesarDatos(filas){
 
-    const equipoLocal = filas[0][1];
+    tituloPartido.textContent =
+        filas[0][1] + " vs " + filas[1][1];
 
-    const equipoVisitante = filas[1][1];
+    fecha.textContent = filas[4][1].trim();
 
-    fecha.textContent = filas[4][1];
+    hora.textContent = filas[5][1].trim();
 
-    hora.textContent = filas[5][1];
-
-    estado.textContent = filas[6][1];
-
-    tituloPartido.innerHTML =
-        "⚽ " +
-        equipoLocal +
-        " - " +
-        equipoVisitante;
+    estado.textContent = filas[6][1].trim();
 
     apuestas=[];
 
     let total=0;
 
-    for(let i=10;i<filas.length;i++){
+    // Buscar automáticamente dónde empieza la tabla
+    let inicio = filas.findIndex(f => f[0] === "NOMBRE");
 
-        if(filas[i][0]=="")
-            continue;
+    if(inicio === -1){
+        alert("No encontré la tabla.");
+        return;
+    }
 
-        let registro={
+    for(let i=inicio+1;i<filas.length;i++){
+
+        if(!filas[i][0]) continue;
+
+        apuestas.push({
 
             nombre:filas[i][0],
 
-            monto:parseFloat(filas[i][1]),
+            monto:Number(filas[i][1]),
 
-            local:parseInt(filas[i][2]),
+            local:Number(filas[i][2]),
 
-            visitante:parseInt(filas[i][3])
+            visitante:Number(filas[i][3])
 
-        };
+        });
 
-        apuestas.push(registro);
-
-        total+=registro.monto;
+        total += Number(filas[i][1]);
 
     }
 
-    participantes.textContent=apuestas.length;
+    participantes.textContent = apuestas.length;
 
-    totalApostado.textContent=total.toFixed(2);
+    totalApostado.textContent = total.toFixed(2);
 
     mostrarTabla();
 
 }
-//==============================================
+    //==============================================
 // MOSTRAR TABLA
 //==============================================
 
