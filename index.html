@@ -1,27 +1,80 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+
 <meta charset="UTF-8">
-<title>Prueba Google Sheets</title>
+<title>Quiniela</title>
 
 <style>
 
 body{
     font-family:Arial;
-    text-align:center;
-    background:#f0f0f0;
-    margin-top:80px;
+    background:#ececec;
+    margin:20px;
+}
+
+#contenedor{
+    width:900px;
+    margin:auto;
+    background:white;
+    padding:20px;
+    border-radius:10px;
 }
 
 h1{
-    color:#2d6a2d;
+    text-align:center;
+    margin-bottom:10px;
 }
 
-#equipo{
-    font-size:40px;
-    color:#004080;
+#marcador{
+    text-align:center;
+    font-size:45px;
     font-weight:bold;
-    margin-top:30px;
+    color:#2d6a2d;
+    margin-bottom:20px;
+}
+
+#info{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+table{
+
+    width:100%;
+    border-collapse:collapse;
+
+}
+
+th{
+
+    background:#5d8c31;
+    color:white;
+    padding:10px;
+
+}
+
+td{
+
+    padding:8px;
+    border-bottom:1px solid #ddd;
+    text-align:center;
+
+}
+
+.ganador{
+
+    background:#c8ffc8;
+
+}
+
+#total{
+
+    margin-top:20px;
+    text-align:right;
+    font-size:20px;
+    font-weight:bold;
+
 }
 
 </style>
@@ -30,41 +83,131 @@ h1{
 
 <body>
 
-<h1>Equipo Local</h1>
+<div id="contenedor">
 
-<div id="equipo">
-Cargando...
+<h1 id="titulo">Cargando...</h1>
+
+<div id="marcador">
+
+0 - 0
+
+</div>
+
+<div id="info">
+
+...
+
+</div>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>#</th>
+<th>Nombre</th>
+<th>Monto</th>
+<th>Local</th>
+<th>Visitante</th>
+
+</tr>
+
+</thead>
+
+<tbody id="tabla">
+
+</tbody>
+
+</table>
+
+<div id="total">
+
+Total:
+
+0
+
+</div>
+
 </div>
 
 <script>
 
-const URL =
-"https://docs.google.com/spreadsheets/d/e/2PACX-1vStBZRZ3-ipmotg7jpeuZFDBF25McNMdQh_mz2ZUuj7rMBfVp0F9WbuCRPl7U69Hg/pub?output=csv&gid=1049860530&single=true";
+const URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vStBZRZ3-ipmotg7jpeuZFDBF25McNMdQh_mz2ZUuj7rMBfVp0F9WbuCRPl7U69Hg/pub?output=csv&gid=1049860530&single=true";
 
 fetch(URL)
-.then(r=>{
 
-    console.log("Estado:",r.status);
+.then(r=>r.text())
 
-    return r.text();
-
-})
 .then(texto=>{
 
-    console.log(texto);
+const filas=texto.split(/\r?\n/).map(f=>f.split(","));
 
-    let filas = texto.split(/\r?\n/);
+const local=filas[0][1];
 
-    let primera = filas[0].split(",");
+const visita=filas[1][1];
 
-    document.getElementById("equipo").innerHTML=primera[1];
+const golesLocal=parseInt(filas[2][1]);
+
+const golesVisita=parseInt(filas[3][1]);
+
+const fecha=filas[4][1];
+
+const hora=filas[5][1];
+
+const estado=filas[6][1];
+
+titulo.innerHTML=local+" vs "+visita;
+
+marcador.innerHTML=golesLocal+" - "+golesVisita;
+
+info.innerHTML=fecha+" | "+hora+" | "+estado;
+
+let inicio=filas.findIndex(f=>f[0]=="NOMBRE");
+
+let total=0;
+
+for(let i=inicio+1;i<filas.length;i++){
+
+    if(filas[i][0]=="") continue;
+
+    let nombre=filas[i][0];
+
+    let monto=parseFloat(filas[i][1]);
+
+    let apuestaLocal=parseInt(filas[i][2]);
+
+    let apuestaVisita=parseInt(filas[i][3]);
+
+    total+=monto;
+
+    let clase="";
+
+    if(apuestaLocal==golesLocal && apuestaVisita==golesVisita){
+
+        clase="ganador";
+
+    }
+
+    tabla.innerHTML+=`
+    <tr class="${clase}">
+    <td>${i-inicio}</td>
+    <td>${nombre}</td>
+    <td>${monto}</td>
+    <td>${apuestaLocal}</td>
+    <td>${apuestaVisita}</td>
+    </tr>
+    `;
+
+}
+
+total.innerHTML="Total Apostado: Bs "+total.toFixed(2);
 
 })
-.catch(error=>{
 
-    console.log(error);
+.catch(e=>{
 
-    document.getElementById("equipo").innerHTML="ERROR";
+document.body.innerHTML="<h2>Error leyendo Google Sheets</h2><pre>"+e+"</pre>";
 
 });
 
