@@ -19,6 +19,7 @@ body{
     background:white;
     padding:20px;
     border-radius:10px;
+    box-shadow:0 0 15px rgba(0,0,0,.15);
 }
 
 h1{
@@ -27,16 +28,21 @@ h1{
 }
 
 #marcador{
+
     text-align:center;
-    font-size:45px;
+    font-size:55px;
     font-weight:bold;
     color:#2d6a2d;
     margin-bottom:20px;
+
 }
 
 #info{
+
     text-align:center;
     margin-bottom:20px;
+    font-size:20px;
+
 }
 
 table{
@@ -56,7 +62,7 @@ th{
 
 td{
 
-    padding:8px;
+    padding:10px;
     border-bottom:1px solid #ddd;
     text-align:center;
 
@@ -72,7 +78,7 @@ td{
 
     margin-top:20px;
     text-align:right;
-    font-size:20px;
+    font-size:22px;
     font-weight:bold;
 
 }
@@ -85,7 +91,11 @@ td{
 
 <div id="contenedor">
 
-<h1 id="titulo">Cargando...</h1>
+<h1 id="titulo">
+
+Cargando...
+
+</h1>
 
 <div id="marcador">
 
@@ -106,10 +116,22 @@ td{
 <tr>
 
 <th>#</th>
+
 <th>Nombre</th>
+
 <th>Monto</th>
-<th>Local</th>
-<th>Visitante</th>
+
+<th id="equipoLocal">
+
+Local
+
+</th>
+
+<th id="equipoVisitante">
+
+Visitante
+
+</th>
 
 </tr>
 
@@ -123,9 +145,7 @@ td{
 
 <div id="total">
 
-Total:
-
-0
+Total Apostado: Bs 0
 
 </div>
 
@@ -147,9 +167,9 @@ const local=filas[0][1];
 
 const visita=filas[1][1];
 
-const golesLocal=parseInt(filas[2][1]);
+const golesLocal=Number(filas[2][1]);
 
-const golesVisita=parseInt(filas[3][1]);
+const golesVisita=Number(filas[3][1]);
 
 const fecha=filas[4][1];
 
@@ -163,55 +183,96 @@ marcador.innerHTML=golesLocal+" - "+golesVisita;
 
 info.innerHTML=fecha+" | "+hora+" | "+estado;
 
+document.getElementById("equipoLocal").innerHTML=local;
+
+document.getElementById("equipoVisitante").innerHTML=visita;
+    
 let inicio=filas.findIndex(f=>f[0]=="NOMBRE");
 
-let total=0;
+let totalApostado=0;
 
 for(let i=inicio+1;i<filas.length;i++){
 
-    if(filas[i][0]=="") continue;
+    if(filas[i][0].trim()=="")
+        continue;
 
-    let nombre=filas[i][0];
+    let nombre = filas[i][0];
 
-    let monto=parseFloat(filas[i][1]);
+    let monto = Number(filas[i][1]) || 0;
 
-    let apuestaLocal=parseInt(filas[i][2]);
+    let apuestaLocal = Number(filas[i][2]);
 
-    let apuestaVisita=parseInt(filas[i][3]);
+    let apuestaVisita = Number(filas[i][3]);
 
-    total+=monto;
+    totalApostado += monto;
 
     let clase="";
 
-    if(apuestaLocal==golesLocal && apuestaVisita==golesVisita){
-
+    if(
+        apuestaLocal===golesLocal &&
+        apuestaVisita===golesVisita
+    ){
         clase="ganador";
-
     }
 
-    tabla.innerHTML+=`
+    tabla.innerHTML += `
+
     <tr class="${clase}">
-    <td>${i-inicio}</td>
-    <td>${nombre}</td>
-    <td>${monto}</td>
-    <td>${apuestaLocal}</td>
-    <td>${apuestaVisita}</td>
+
+        <td>${i-inicio}</td>
+
+        <td>${nombre}</td>
+
+        <td>
+            <b>Bs ${monto.toFixed(2)}</b>
+        </td>
+
+        <td>
+            <b>${apuestaLocal}</b>
+        </td>
+
+        <td>
+            <b>${apuestaVisita}</b>
+        </td>
+
     </tr>
+
     `;
 
 }
 
-total.innerHTML="Total Apostado: Bs "+total.toFixed(2);
+    document.getElementById("total").innerHTML =
+"Total Apostado: <b>Bs " + totalApostado.toFixed(2) + "</b>";
 
 })
 
-.catch(e=>{
+.catch(error=>{
 
-document.body.innerHTML="<h2>Error leyendo Google Sheets</h2><pre>"+e+"</pre>";
+document.body.innerHTML=`
+
+<h2 style="text-align:center;color:red">
+
+Error leyendo Google Sheets
+
+</h2>
+
+<pre style="text-align:center">
+
+${error}
+
+</pre>
+
+`;
 
 });
 
 </script>
 
 </body>
+
 </html>
+
+
+
+
+      
