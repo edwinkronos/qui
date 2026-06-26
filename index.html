@@ -1,30 +1,38 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
 
 <meta charset="UTF-8">
+
 <title>Quiniela</title>
 
 <style>
 
 body{
-    font-family:Arial;
+
+    font-family:Arial,Helvetica,sans-serif;
     background:#ececec;
     margin:20px;
+
 }
 
 #contenedor{
+
     width:900px;
     margin:auto;
-    background:white;
+    background:#fff;
     padding:20px;
     border-radius:10px;
-    box-shadow:0 0 15px rgba(0,0,0,.15);
+    box-shadow:0 0 12px rgba(0,0,0,.2);
+
 }
 
 h1{
+
     text-align:center;
     margin-bottom:10px;
+
 }
 
 #marcador{
@@ -33,15 +41,15 @@ h1{
     font-size:55px;
     font-weight:bold;
     color:#2d6a2d;
-    margin-bottom:20px;
+    margin-bottom:10px;
 
 }
 
 #info{
 
     text-align:center;
+    font-size:18px;
     margin-bottom:20px;
-    font-size:20px;
 
 }
 
@@ -63,23 +71,26 @@ th{
 td{
 
     padding:10px;
-    border-bottom:1px solid #ddd;
     text-align:center;
+    border-bottom:1px solid #ddd;
 
 }
 
 .ganador{
 
     background:#c8ffc8;
+    font-weight:bold;
 
 }
 
-#total{
+#resumen{
 
     margin-top:20px;
-    text-align:right;
-    font-size:22px;
-    font-weight:bold;
+    padding:12px;
+    background:#f5f5f5;
+    border-radius:8px;
+    text-align:center;
+    font-size:18px;
 
 }
 
@@ -143,9 +154,9 @@ Visitante
 
 </table>
 
-<div id="total">
+<div id="resumen">
 
-Total Apostado: Bs 0
+Cargando datos...
 
 </div>
 
@@ -186,15 +197,20 @@ info.innerHTML=fecha+" | "+hora+" | "+estado;
 document.getElementById("equipoLocal").innerHTML=local;
 
 document.getElementById("equipoVisitante").innerHTML=visita;
-    
+
 let inicio=filas.findIndex(f=>f[0]=="NOMBRE");
 
 let totalApostado=0;
 
+let cantidadGanadores=0;
+
+let participantes=0;
 for(let i=inicio+1;i<filas.length;i++){
 
     if(filas[i][0].trim()=="")
         continue;
+
+    participantes++;
 
     let nombre = filas[i][0];
 
@@ -212,55 +228,95 @@ for(let i=inicio+1;i<filas.length;i++){
         apuestaLocal===golesLocal &&
         apuestaVisita===golesVisita
     ){
+
         clase="ganador";
+
+        cantidadGanadores++;
+
     }
 
-    tabla.innerHTML += `
+    document.getElementById("tabla").innerHTML += `
 
-    <tr class="${clase}">
+<tr class="${clase}">
 
-        <td>${i-inicio}</td>
+<td>
 
-        <td>${nombre}</td>
+${participantes}
 
-        <td>
-            <b>Bs ${monto.toFixed(2)}</b>
-        </td>
+</td>
 
-        <td>
-            <b>${apuestaLocal}</b>
-        </td>
+<td>
 
-        <td>
-            <b>${apuestaVisita}</b>
-        </td>
+${nombre}
 
-    </tr>
+</td>
 
-    `;
+<td>
+
+<b>Bs ${monto.toFixed(2)}</b>
+
+</td>
+
+<td>
+
+<b>${apuestaLocal}</b>
+
+</td>
+
+<td>
+
+<b>${apuestaVisita}</b>
+
+</td>
+
+</tr>
+
+`;
 
 }
 
-    document.getElementById("total").innerHTML =
-"Total Apostado: <b>Bs " + totalApostado.toFixed(2) + "</b>";
+let premioPorGanador = 0;
+
+if(cantidadGanadores>0){
+
+    premioPorGanador = totalApostado / cantidadGanadores;
+
+}
+document.getElementById("resumen").innerHTML = `
+
+<b>👥 Participantes:</b> ${participantes}
+
+&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+
+<b>💰 Total Apostado:</b> Bs ${totalApostado.toFixed(2)}
+
+&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+
+<b>🏆 Ganadores:</b> ${cantidadGanadores}
+
+&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+
+<b>🎁 Premio por ganador:</b> Bs ${premioPorGanador.toFixed(2)}
+
+`;
 
 })
 
 .catch(error=>{
 
-document.body.innerHTML=`
+document.getElementById("contenedor").innerHTML=`
 
-<h2 style="text-align:center;color:red">
+<h2 style="color:red;text-align:center;">
 
 Error leyendo Google Sheets
 
 </h2>
 
-<pre style="text-align:center">
+<p style="text-align:center;">
 
 ${error}
 
-</pre>
+</p>
 
 `;
 
@@ -271,6 +327,11 @@ ${error}
 </body>
 
 </html>
+
+
+    
+
+
 
 
 
